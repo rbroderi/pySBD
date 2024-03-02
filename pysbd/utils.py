@@ -2,6 +2,19 @@
 # -*- coding: utf-8 -*-
 import re
 import pysbd
+from typing import Any
+try:
+    from spacy.language import Language
+    langfac = Language.factory
+except ImportError:
+    def langfac(*args:Any,**kwargs:Any):
+        def decorator(function:Any):
+            def wrapper(*args:Any, **kwargs:Any):
+                pass
+            return wrapper
+        return decorator
+
+
 
 class Rule(object):
 
@@ -63,12 +76,13 @@ class TextSpan(object):
         if isinstance(self, other.__class__):
             return self.sent == other.sent and self.start == other.start and self.end == other.end
 
-
+@langfac(name="pysbd",default_config={"language": 'en'})
 class PySBDFactory(object):
     """pysbd as a spacy component through entrypoints"""
 
-    def __init__(self, nlp, language='en'):
+    def __init__(self, nlp, name,language='en'):
         self.nlp = nlp
+        self.name = name
         self.seg = pysbd.Segmenter(language=language, clean=False,
                                    char_span=True)
 
